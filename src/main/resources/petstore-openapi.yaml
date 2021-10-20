@@ -645,6 +645,9 @@ components:
           format: int64
         username:
           type: string
+          maxLength: 20
+          minLength: 8
+          pattern: ^[a-zA-Z\.]*$
         firstName:
           type: string
         lastName:
