@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.7</version>
+		<version>3.0.1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.bsi</groupId>
 	<artifactId>openapi-codegen</artifactId>
-	<version>0.5</version>
+	<version>1.0</version>
 	<name>openapi-codegen</name>
-	<description>Demo project for swagger code generator</description>
+	<description>Demo project for openapi and swagger code generator</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -32,13 +30,6 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Required for annotations in generated code. -->
-		<dependency>
-		    <groupId>io.swagger.core.v3</groupId>
-		    <artifactId>swagger-annotations</artifactId>
-		    <version>2.1.13</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -52,40 +43,58 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
-			<plugin>
-				<groupId>io.swagger.codegen.v3</groupId>
-				<artifactId>swagger-codegen-maven-plugin</artifactId>
-				<version>3.0.33</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/petstore-openapi.yaml</inputSpec>
-							<language>spring</language>
-							<configOptions>
-								<sourceFolder>petstore</sourceFolder>
-								<dateLibrary>java8</dateLibrary>
-							</configOptions>
-							<modelPackage>de.bsi.openapi.petstore.model</modelPackage>
-							<generateModels>true</generateModels>
-							<generateApis>false</generateApis>
-							<generateSupportingFiles>false</generateSupportingFiles>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<!-- Required for Java 17 -->
-					<dependency>
-						<groupId>com.github.jknack</groupId>
-						<artifactId>handlebars</artifactId>
-						<version>4.3.0</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- swagger-codegen-maven-plugin was not supporting Spring Boot 3 jakarta annotations, so now openapi-generator-maven-plugin is used. -->
+		<profile>
+			<id>openapi</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.springdoc</groupId>
+					<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+					<version>2.0.2</version>
+				</dependency>
+				<dependency>
+					<groupId>org.openapitools</groupId>
+					<artifactId>jackson-databind-nullable</artifactId>
+					<version>0.2.4</version>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.openapitools</groupId>
+						<artifactId>openapi-generator-maven-plugin</artifactId>
+						<version>6.2.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<inputSpec>${project.basedir}/src/main/resources/petstore-openapi.yaml</inputSpec>
+									<generatorName>spring</generatorName>
+									<configOptions>
+										<sourceFolder>petstore</sourceFolder>
+										<dateLibrary>java8</dateLibrary>
+										<useSpringBoot3>true</useSpringBoot3>
+									</configOptions>
+									<modelPackage>de.bsi.openapi.petstore.model</modelPackage>
+									<generateModels>true</generateModels>
+									<generateApis>false</generateApis>
+									<generateSupportingFiles>false</generateSupportingFiles>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
